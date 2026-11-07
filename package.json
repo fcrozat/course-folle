@@ -1,0 +1,11 @@
+{
+  "name": "la-course-folle",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Petit jeu de course pour enfant : habille ton champion et saute par-dessus les bêtises. Canvas + WebAudio, sans dépendances.",
+  "scripts": {
+    "test": "node test/sim.js",
+    "start": "python3 -m http.server 8000"
+  },
+  "license": "MIT"
+}

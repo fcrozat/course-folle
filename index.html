@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ff5fa2">
+<meta name="description" content="La Course Folle : habille ton personnage et gagne la course ! Un petit jeu de saut pour les enfants.">
+<title>La Course Folle 🏁</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Le monde est toujours dessiné ici (décor animé derrière les menus + course) -->
+  <canvas id="game"></canvas>
+
+  <!-- ============================== HUD DE COURSE ============================== -->
+  <div id="hud" class="hud" hidden>
+    <div class="track" id="track">
+      <div class="track-rail"></div>
+      <div class="track-flag" aria-hidden="true">🏁</div>
+      <div class="marker" id="mk0"><canvas width="40" height="40"></canvas></div>
+      <div class="marker" id="mk1"><canvas width="40" height="40"></canvas></div>
+      <div class="marker" id="mk2"><canvas width="40" height="40"></canvas></div>
+      <div class="marker me" id="mk3"><canvas width="40" height="40"></canvas></div>
+    </div>
+
+    <div class="hud-corner left">
+      <div class="pill candy">🍬 <b id="uiCandies">0</b></div>
+      <div class="boost" title="Super vitesse">
+        <div class="boost-fill" id="uiBoost"></div>
+        <span class="boost-label">SUPER&nbsp;VITESSE</span>
+      </div>
+    </div>
+
+    <div class="hud-corner right">
+      <div class="pill zone" id="uiZone">🌼 Le Jardin Fou</div>
+      <div class="pill dist"><b id="uiDist">0</b> / 600 m</div>
+      <div class="hud-buttons">
+        <button class="icon-btn" id="btnMute" aria-label="Couper le son">🔊</button>
+        <button class="icon-btn" id="btnPause" aria-label="Pause">⏸</button>
+      </div>
+    </div>
+
+    <div class="toast" id="uiToast"></div>
+    <div class="hint" id="uiHint">
+      <span class="hint-key">ESPACE</span>
+      <span class="hint-or">ou</span>
+      <span class="hint-tap">👆 touche l'écran</span>
+      <span class="hint-what">pour sauter !</span>
+    </div>
+  </div>
+
+  <!-- ============================== ÉCRAN TITRE ============================== -->
+  <section class="screen" id="screen-title">
+    <div class="title-card">
+      <div class="title-flags" aria-hidden="true">🎈🏁🎈</div>
+      <h1 class="game-title">
+        <span class="w1">La</span> <span class="w2">Course</span> <span class="w3">Folle</span>
+      </h1>
+      <p class="tagline">Habille ton champion, saute par-dessus les bêtises<br>et gagne la course&nbsp;!</p>
+      <div class="title-actions">
+        <button class="btn big primary" id="btnPlay">JOUER ▶</button>
+        <button class="btn big ghost" id="btnHow">Comment on joue&nbsp;?</button>
+      </div>
+      <div class="title-foot">
+        <button class="icon-btn" id="btnMute2" aria-label="Couper le son">🔊</button>
+        <button class="icon-btn" id="btnFull" aria-label="Plein écran">⛶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== AIDE ============================== -->
+  <section class="screen" id="screen-help">
+    <div class="card help-card">
+      <h2>Comment on joue&nbsp;?</h2>
+      <ul class="help-list">
+        <li><span class="big-emoji">👆</span><b>Appuie sur l'écran</b> (ou sur <kbd>Espace</kbd>) pour sauter.</li>
+        <li><span class="big-emoji">🎈</span><b>Reste appuyé</b> pour sauter un peu plus haut.</li>
+        <li><span class="big-emoji">🍬</span><b>Ramasse des bonbons</b>&nbsp;: 10 bonbons = SUPER VITESSE&nbsp;!</li>
+        <li><span class="big-emoji">🐌</span><b>Évite les obstacles</b>, sinon tu trébuches et les autres passent devant.</li>
+        <li><span class="big-emoji">🌙</span><b>Le décor change</b> pendant la course&nbsp;: sur la Lune tu sautes très haut, dans la piscine tu flottes…</li>
+        <li><span class="big-emoji">👕</span><b>Les vêtements changent tout</b>&nbsp;: des bottes font rebondir, une cape fait planer, un casque à hélice donne un deuxième saut&nbsp;!</li>
+      </ul>
+      <button class="btn big primary" id="btnHelpBack">D'ACCORD&nbsp;!</button>
+    </div>
+  </section>
+
+  <!-- ============================== CHOIX DU PERSONNAGE ============================== -->
+  <section class="screen" id="screen-char">
+    <div class="card">
+      <header class="bar">
+        <button class="btn ghost small" data-goto="title">← Menu</button>
+        <h2>1. Choisis ton champion</h2>
+        <span class="bar-spacer"></span>
+      </header>
+      <div class="char-grid" id="charGrid"></div>
+      <footer class="bar bottom">
+        <p class="tip" id="charTip">Chaque champion a un talent rigolo&nbsp;!</p>
+        <button class="btn big primary" id="btnToWardrobe" disabled>SUIVANT&nbsp;: les vêtements →</button>
+      </footer>
+    </div>
+  </section>
+
+  <!-- ============================== VESTIAIRE ============================== -->
+  <section class="screen" id="screen-dress">
+    <div class="card dress-card">
+      <header class="bar">
+        <button class="btn ghost small" data-goto="char">← Champions</button>
+        <h2>2. Le vestiaire fou</h2>
+        <span class="bar-spacer"></span>
+      </header>
+
+      <div class="wardrobe">
+        <div class="preview-panel">
+          <canvas id="preview" width="360" height="300"></canvas>
+          <div class="preview-name" id="uiCharName">Momo</div>
+          <div class="preview-talent" id="uiCharTalent"></div>
+          <div class="stats" id="uiStats"></div>
+          <div class="powers" id="uiPowers"></div>
+        </div>
+
+        <div class="picker">
+          <div class="slots" id="uiSlots"></div>
+          <div class="items" id="uiItems"></div>
+          <div class="item-desc" id="uiItemDesc">Choisis un vêtement&nbsp;!</div>
+          <div class="picker-actions">
+            <button class="btn ghost" id="btnRandom">🎲 Tenue au hasard</button>
+            <button class="btn ghost" id="btnNaked">🧼 Tout enlever</button>
+            <button class="btn big primary" id="btnStart">C'EST PARTI&nbsp;! 🏁</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== PAUSE ============================== -->
+  <section class="screen overlay" id="screen-pause">
+    <div class="card small-card">
+      <h2>Pause 🍪</h2>
+      <p class="tagline">La course t'attend sagement.</p>
+      <div class="stack">
+        <button class="btn big primary" id="btnResume">▶ REPRENDRE</button>
+        <button class="btn ghost" id="btnRestart">↻ Recommencer la course</button>
+        <button class="btn ghost" id="btnQuit">🏠 Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== RÉSULTATS ============================== -->
+  <section class="screen overlay" id="screen-results">
+    <div class="card">
+      <h2 class="results-title" id="uiResultTitle">🥇 Victoire&nbsp;!</h2>
+      <p class="results-sub" id="uiResultSub"></p>
+      <div class="ranking" id="uiRanking"></div>
+      <div class="race-stats" id="uiRaceStats"></div>
+      <div class="stack row">
+        <button class="btn big primary" id="btnAgain">↻ REJOUER</button>
+        <button class="btn ghost" id="btnChangeOutfit">👕 Changer de tenue</button>
+        <button class="btn ghost" id="btnMenu">🏠 Menu</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="flash" id="flash" aria-hidden="true"></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/dom.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/draw.js"></script>
+<script src="js/world.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/dressing.js"></script>
+<script src="js/race.js"></script>
+<script src="js/main.js"></script>
+<script>CF.boot();</script>
+</body>
+</html>
