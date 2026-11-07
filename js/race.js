@@ -331,13 +331,16 @@ window.CF = window.CF || {};
     });
   };
 
-  // distance libre après un obstacle (en px) — volontairement large : on vise
-  // environ 2 à 3 secondes entre deux obstacles, lisible pour un enfant.
+  // distance libre après un obstacle (en px).
+  // On raisonne en TEMPS entre deux obstacles (~2,3 à 3,2 s) pour que la
+  // densité soit la même dans tous les décors, y compris ceux où l'on saute
+  // longtemps (Lune, piscine) ; puis on garantit un minimum lié à la portée du
+  // saut pour toujours laisser le temps d'atterrir et de repartir.
   Race.prototype.pickGap = function (type, jm) {
     var easy = this.dist < PX * 90;               // début de course plus calme
-    var base = jm.reach * (easy ? 1.9 : 1.8);
-    var span = easy ? 260 : 520;
-    var g = base + span * (0.35 + Math.random() * 0.65);
+    var seconds = (easy ? 2.7 : 2.3) + Math.random() * 0.9;
+    var g = this.nominalSpeed() * seconds;
+    g = Math.max(g, jm.reach * 1.25);
     if (!type.ground) g += jm.reach * 0.6;         // après un obstacle volant, on respire
     return Math.max(240, Math.min(g, jm.reach * 3.2 + 520));
   };
