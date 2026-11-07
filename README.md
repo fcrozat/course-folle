@@ -118,3 +118,24 @@ Raccourcis de développement (utiles aussi pour montrer un écran précis) :
 - Pas de zoom/scroll parasites pendant la course (`touch-action`, viewport
   verrouillé) ; boutons ≥ 44 px pour les petits doigts.
 - Aucun texte à lire pour jouer : tout passe par icônes, couleurs et barres.
+
+## Publier sur GitHub Pages
+
+Le site est servi depuis la branche `gh-pages` (copie exacte de `main`), car le
+jeton utilisé n'a pas le droit d'API « Pages » — pousser la branche suffit à
+GitHub pour publier, sans rien configurer.
+
+```bash
+./deploy.sh          # = git push origin main:gh-pages --force
+```
+
+URL publique : <https://fcrozat.github.io/course-folle/>
+
+- Tout est en chemins relatifs, donc le jeu fonctionne sous le sous-dossier
+  `/course-folle/` sans réglage de « base path ».
+- Si tu préfères servir depuis `main` directement : GitHub → *Settings → Pages
+  → Source : Deploy from a branch → main / (root)*, puis supprime `gh-pages`.
+  (Une manipulation manuelle, car l'API Pages exige un droit que le jeton n'a
+  pas ; `deploy.sh` devient alors inutile.)
+- Vérifier l'état de la publication :
+  `gh api repos/fcrozat/course-folle/pages --jq .status` (`building` → `built`).
